@@ -1,4 +1,5 @@
 import React from 'react';
+import ThemeToggle from './ThemeToggle';
 
 const Header = ({ user, currentView, onViewChange, onLogout }) => {
   return (
@@ -11,25 +12,25 @@ const Header = ({ user, currentView, onViewChange, onLogout }) => {
         </div>
 
         <nav className="header-nav">
-          <button 
+          <button
             className={`nav-button ${currentView === 'dashboard' ? 'active' : ''}`}
             onClick={() => onViewChange('dashboard')}
           >
             Dashboard
           </button>
-          <button 
+          <button
             className={`nav-button ${currentView === 'courses' ? 'active' : ''}`}
             onClick={() => onViewChange('courses')}
           >
             Browse Courses
           </button>
-          <button 
+          <button
             className={`nav-button ${currentView === 'recommendations' ? 'active' : ''}`}
             onClick={() => onViewChange('recommendations')}
           >
             Recommended
           </button>
-          <button 
+          <button
             className={`nav-button ${currentView === 'profile' ? 'active' : ''}`}
             onClick={() => onViewChange('profile')}
           >
@@ -39,11 +40,12 @@ const Header = ({ user, currentView, onViewChange, onLogout }) => {
 
         <div className="header-right">
           <div className="user-info">
+            <ThemeToggle />
             <span className="user-name">Welcome, {user.username}!</span>
             <div className="user-dropdown">
               <button className="dropdown-toggle">
                 <div className="avatar">
-                  {user.username.charAt(0).toUpperCase()}
+                  {user.username && user.username.charAt(0).toUpperCase()}
                 </div>
               </button>
               <div className="dropdown-menu">

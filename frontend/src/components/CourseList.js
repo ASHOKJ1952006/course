@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import * as api from '../services/api';
+import WishlistButton from './WishlistButton';
 
-const CourseList = ({ onCourseSelect, onShowNotification }) => {
+const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
@@ -14,6 +15,29 @@ const CourseList = ({ onCourseSelect, onShowNotification }) => {
   });
   const [totalPages, setTotalPages] = useState(1);
   const [searchTimeout, setSearchTimeout] = useState(null);
+
+  const fetchCategories = async () => {
+    try {
+      const categoriesData = await api.getCategories();
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+    }
+  };
+
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      const response = await api.getCourses(filters);
+      setCourses(response.courses);
+      setTotalPages(response.totalPages);
+    } catch (error) {
+      console.error('Failed to fetch courses:', error);
+      onShowNotification('Failed to load courses', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -40,29 +64,6 @@ const CourseList = ({ onCourseSelect, onShowNotification }) => {
 
     return () => clearTimeout(timeout);
   }, [filters.search]);
-
-  const fetchCategories = async () => {
-    try {
-      const categoriesData = await api.getCategories();
-      setCategories(categoriesData);
-    } catch (error) {
-      console.error('Failed to fetch categories:', error);
-    }
-  };
-
-  const fetchCourses = async () => {
-    try {
-      setLoading(true);
-      const response = await api.getCourses(filters);
-      setCourses(response.courses);
-      setTotalPages(response.totalPages);
-    } catch (error) {
-      console.error('Failed to fetch courses:', error);
-      onShowNotification('Failed to load courses', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
@@ -175,14 +176,20 @@ const CourseList = ({ onCourseSelect, onShowNotification }) => {
             {courses.map(course => (
               <div key={course._id} className="course-card">
                 <div className="course-image">
-                  <img 
-                    src={course.thumbnail || '/api/placeholder/300/200'} 
+                  <img
+                    src={course.thumbnail || '/api/placeholder/300/200'}
                     alt={course.title}
                     onError={(e) => {
                       e.target.src = '/api/placeholder/300/200';
                     }}
                   />
                   <div className="course-level-badge">{course.level}</div>
+                  <WishlistButton
+                    courseId={course._id}
+                    user={user}
+                    onShowNotification={onShowNotification}
+                    className="course-wishlist-btn"
+                  />
                   {course.languages.length > 0 && (
                     <div className="course-languages">
                       {course.languages.slice(0, 2).map(lang => (

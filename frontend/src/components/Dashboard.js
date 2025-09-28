@@ -17,21 +17,20 @@ const Dashboard = ({ user, onViewChange, onShowNotification }) => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [recommendationsData] = await Promise.all([
-        api.getRecommendations()
-      ]);
 
-      // ensure recommendationsData is valid
+      // Fetch recommendations (works for both authenticated and non-authenticated users)
+      const recommendationsData = await api.getRecommendations();
+
+      // Ensure recommendationsData is valid
       const recs = recommendationsData?.recommendations || [];
       setRecommendations(recs.slice(0, 4));
 
-      // Calculate stats
+      // Calculate stats safely
       const totalCompleted = user?.completedCourses?.length || 0;
       const totalEnrolled = user?.enrolledCourses?.length || 0;
-      const totalHours =
-        user?.completedCourses?.reduce((sum, course) => {
-          return sum + (course?.courseId?.duration || 0);
-        }, 0) || 0;
+      const totalHours = user?.completedCourses?.reduce((sum, course) => {
+        return sum + (course?.courseId?.duration || 0);
+      }, 0) || 0;
 
       setStats({
         totalCompleted,
@@ -40,7 +39,21 @@ const Dashboard = ({ user, onViewChange, onShowNotification }) => {
       });
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
-      onShowNotification?.('Failed to load dashboard data', 'error');
+      // Set empty recommendations on error but don't show error notification
+      setRecommendations([]);
+
+      // Still calculate stats from user data if available
+      const totalCompleted = user?.completedCourses?.length || 0;
+      const totalEnrolled = user?.enrolledCourses?.length || 0;
+      const totalHours = user?.completedCourses?.reduce((sum, course) => {
+        return sum + (course?.courseId?.duration || 0);
+      }, 0) || 0;
+
+      setStats({
+        totalCompleted,
+        totalEnrolled,
+        totalHours
+      });
     } finally {
       setLoading(false);
     }

@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 
-const CourseDetail = ({ course, user, onEnroll, onComplete, onBack, onShowNotification }) => {
+const CourseDetail = ({ course, user, onEnroll, onComplete, onDownloadCertificate, onBack, onShowNotification }) => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [rating, setRating] = useState(5);
   const [loading, setLoading] = useState(false);
 
   // Check enrollment status
   const isEnrolled = user.enrolledCourses?.some(
-    enrollment => enrollment.courseId._id === course._id
+    enrollment => enrollment.courseId?._id === course?._id
+  ) || false;
+  const completionData = user.completedCourses?.find(
+    completion => completion.courseId?._id === course?._id
   );
-  const isCompleted = user.completedCourses?.some(
-    completion => completion.courseId._id === course._id
-  );
+  const isCompleted = !!completionData;
 
   const enrollmentData = user.enrolledCourses?.find(
-    enrollment => enrollment.courseId._id === course._id
+    enrollment => enrollment.courseId?._id === course?._id
   );
 
   const handleEnroll = async () => {
@@ -37,6 +38,16 @@ const CourseDetail = ({ course, user, onEnroll, onComplete, onBack, onShowNotifi
       console.error('Course completion failed:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadCertificate = async () => {
+    if (completionData?.certificateId) {
+      try {
+        await onDownloadCertificate(completionData.certificateId);
+      } catch (error) {
+        console.error('Certificate download failed:', error);
+      }
     }
   };
 
@@ -86,25 +97,25 @@ const CourseDetail = ({ course, user, onEnroll, onComplete, onBack, onShowNotifi
               <div className="stat">
                 <span className="stat-icon">⭐</span>
                 <span className="stat-text">
-                  {course.rating.toFixed(1)} ({course.totalRatings} reviews)
+                  {(course.rating ?? 0).toFixed(1)} ({course.totalRatings ?? 0} reviews)
                 </span>
               </div>
               <div className="stat">
                 <span className="stat-icon">👥</span>
-                <span className="stat-text">{course.enrolledStudents} students</span>
+                <span className="stat-text">{course.enrolledStudents ?? 0} students</span>
               </div>
               <div className="stat">
                 <span className="stat-icon">🕒</span>
-                <span className="stat-text">{course.duration} hours</span>
+                <span className="stat-text">{course.duration ?? 0} hours</span>
               </div>
               <div className="stat">
                 <span className="stat-icon">💰</span>
-                <span className="stat-text">${course.price}</span>
+                <span className="stat-text">${course.price ?? 0}</span>
               </div>
             </div>
 
             {/* Languages & Tags */}
-            {course.languages.length > 0 && (
+            {course.languages?.length > 0 && (
               <div className="course-languages">
                 <strong>Languages: </strong>
                 {course.languages.map(lang => (
@@ -114,7 +125,7 @@ const CourseDetail = ({ course, user, onEnroll, onComplete, onBack, onShowNotifi
             )}
 
             <div className="course-tags">
-              {course.tags.map(tag => (
+              {course.tags?.map(tag => (
                 <span key={tag} className="tag">{tag}</span>
               ))}
             </div>
@@ -123,8 +134,28 @@ const CourseDetail = ({ course, user, onEnroll, onComplete, onBack, onShowNotifi
             <div className="enrollment-section">
               {isCompleted ? (
                 <div className="completion-status">
-                  <span className="status-icon">🎉</span>
-                  <span className="status-text">Course Completed!</span>
+                  <div className="completion-info">
+                    <span className="status-icon">🎉</span>
+                    <span className="status-text">Course Completed!</span>
+                    {completionData?.completedAt && (
+                      <span className="completion-date">
+                        Completed on {new Date(completionData.completedAt).toLocaleDateString()}
+                      </span>
+                    )}
+                    {completionData?.rating && (
+                      <div className="completion-rating">
+                        Your Rating: {'⭐'.repeat(completionData.rating)}
+                      </div>
+                    )}
+                  </div>
+                  {completionData?.certificateId && (
+                    <button
+                      className="certificate-button"
+                      onClick={handleDownloadCertificate}
+                    >
+                      📜 Download Certificate
+                    </button>
+                  )}
                 </div>
               ) : isEnrolled ? (
                 <div className="enrolled-status">
@@ -232,7 +263,7 @@ const CourseDetail = ({ course, user, onEnroll, onComplete, onBack, onShowNotifi
               <h3>Instructor</h3>
               <div className="instructor-info">
                 <div className="instructor-avatar">
-                  {course.instructor.charAt(0)}
+                  {course.instructor && course.instructor.charAt(0)}
                 </div>
                 <div className="instructor-details">
                   <h4>{course.instructor}</h4>

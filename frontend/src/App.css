@@ -915,6 +915,13 @@ body {
   font-weight: 600;
 }
 
+.course-wishlist-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
 .course-languages {
   position: absolute;
   bottom: 12px;
@@ -1245,11 +1252,49 @@ body {
 
 .completion-status {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 1rem;
   color: #10b981;
   font-weight: 600;
   font-size: 1.1rem;
+}
+
+.completion-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.completion-date {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: normal;
+}
+
+.completion-rating {
+  font-size: 1rem;
+  color: #f59e0b;
+}
+
+.certificate-button {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.certificate-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
 }
 
 /* Course Content */
@@ -2377,4 +2422,571 @@ select:focus {
     color: black !important;
     background: white !important;
   }
+}
+
+/* Theme Toggle Styles */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.theme-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle-track {
+  position: relative;
+  width: 50px;
+  height: 26px;
+  border-radius: 13px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.theme-toggle-track.light {
+  background-color: #e5e7eb;
+}
+
+.theme-toggle-track.dark {
+  background-color: #374151;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: white;
+  transition: transform 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-track.light .theme-toggle-thumb {
+  transform: translateX(0);
+}
+
+.theme-toggle-track.dark .theme-toggle-thumb {
+  transform: translateX(24px);
+  background-color: #1f2937;
+}
+
+.theme-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Dark Theme Variables */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-card: #ffffff;
+  --bg-elevated: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border-color: #e5e7eb;
+  --border-light: #f3f4f6;
+  --shadow-sm: 0 4px 12px rgba(0,0,0,0.05);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.1);
+  --shadow-lg: 0 20px 40px rgba(0,0,0,0.1);
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-secondary: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  --gradient-auth: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.dark-theme {
+  --bg-primary: #111827;
+  --bg-secondary: #0f172a;
+  --bg-card: #1f2937;
+  --bg-elevated: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --border-color: #374151;
+  --border-light: #4b5563;
+  --shadow-sm: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-lg: 0 20px 40px rgba(0,0,0,0.5);
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-secondary: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  --gradient-auth: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+}
+
+/* Dark Theme Styles */
+.dark-theme body {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.dark-theme .App {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* Card and Background Updates */
+.dark-theme .auth-card,
+.dark-theme .course-card,
+.dark-theme .stat-card,
+.dark-theme .recommendation-card,
+.dark-theme .enrolled-course-card,
+.dark-theme .activity-item,
+.dark-theme .course-detail-container,
+.dark-theme .info-card,
+.dark-theme .profile-section,
+.dark-theme .modal,
+.dark-theme .filters-container {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.dark-theme .course-detail .course-header,
+.dark-theme .getting-started,
+.dark-theme .learning-path-section {
+  background: var(--gradient-secondary);
+}
+
+.dark-theme .auth-container {
+  background: var(--gradient-auth);
+}
+
+/* Text Color Updates */
+.dark-theme .auth-header h2,
+.dark-theme .dashboard-header h1,
+.dark-theme .course-list-header h1,
+.dark-theme .recommendations-header h1,
+.dark-theme .course-detail .course-title,
+.dark-theme .course-title,
+.dark-theme .stat-info h3,
+.dark-theme .course-content h4,
+.dark-theme .profile-section h2,
+.dark-theme .course-info h4,
+.dark-theme .activity-info h4,
+.dark-theme .modal-header h3,
+.dark-theme .no-results h3,
+.dark-theme .no-recommendations h3,
+.dark-theme .no-progress h3 {
+  color: var(--text-primary);
+}
+
+.dark-theme .auth-header p,
+.dark-theme .dashboard-header p,
+.dark-theme .course-list-header p,
+.dark-theme .recommendations-header p,
+.dark-theme .course-instructor,
+.dark-theme .course-description,
+.dark-theme .stat-info p,
+.dark-theme .instructor,
+.dark-theme .activity-date,
+.dark-theme .course-info p,
+.dark-theme .module-description,
+.dark-theme .instructor-details p,
+.dark-theme .no-results p,
+.dark-theme .no-recommendations p,
+.dark-theme .no-progress p,
+.dark-theme .results-info {
+  color: var(--text-secondary);
+}
+
+.dark-theme .rating-number,
+.dark-theme .duration,
+.dark-theme .students,
+.dark-theme .search-date,
+.dark-theme .enrollment-date,
+.dark-theme .completion-date,
+.dark-theme .progress-text {
+  color: var(--text-muted);
+}
+
+/* Form Elements */
+.dark-theme .form-group input,
+.dark-theme .search-input,
+.dark-theme .filter-select {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-theme .form-group input:focus,
+.dark-theme .search-input:focus,
+.dark-theme .filter-select:focus {
+  border-color: #667eea;
+  background-color: var(--bg-card);
+}
+
+.dark-theme .form-group label {
+  color: var(--text-primary);
+}
+
+/* Buttons */
+.dark-theme .clear-filters-button,
+.dark-theme .cancel-button,
+.dark-theme .modal-button.secondary {
+  background-color: var(--bg-elevated);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .clear-filters-button:hover,
+.dark-theme .cancel-button:hover,
+.dark-theme .modal-button.secondary:hover {
+  background-color: var(--border-light);
+}
+
+.dark-theme .tag-button {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.dark-theme .tag-button:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.dark-theme .tag-button.selected {
+  background-color: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+/* Navigation */
+.dark-theme .dropdown-menu {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+.dark-theme .dropdown-menu button {
+  color: var(--text-primary);
+}
+
+.dark-theme .dropdown-menu button:hover {
+  background-color: var(--bg-elevated);
+}
+
+.dark-theme .pagination-button,
+.dark-theme .pagination-number {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.dark-theme .pagination-button:hover:not(:disabled),
+.dark-theme .pagination-number:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.dark-theme .pagination-number.active {
+  background-color: #667eea;
+  border-color: #667eea;
+  color: white;
+}
+
+/* Tags and Badges */
+.dark-theme .tag,
+.dark-theme .language-tag {
+  background-color: var(--bg-elevated);
+  color: var(--text-secondary);
+}
+
+.dark-theme .course-level-badge {
+  background-color: rgba(0,0,0,0.8);
+  color: white;
+}
+
+.dark-theme .recommended-badge,
+.dark-theme .completion-badge {
+  background-color: #10b981;
+  color: white;
+}
+
+/* Module and Info Items */
+.dark-theme .module-item {
+  background-color: var(--bg-elevated);
+  border-left-color: #667eea;
+}
+
+.dark-theme .module-header h4 {
+  color: var(--text-primary);
+}
+
+.dark-theme .prerequisites-list li {
+  border-bottom-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.dark-theme .info-item {
+  border-bottom-color: var(--border-color);
+}
+
+.dark-theme .info-item label {
+  color: var(--text-primary);
+}
+
+.dark-theme .info-item span {
+  color: var(--text-secondary);
+}
+
+/* Search and Activity Items */
+.dark-theme .search-item {
+  background-color: var(--bg-elevated);
+}
+
+.dark-theme .search-query {
+  color: var(--text-primary);
+}
+
+.dark-theme .search-date {
+  color: var(--text-muted);
+}
+
+/* Recommendation Reasons */
+.dark-theme .recommendation-reasons {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left-color: #3b82f6;
+}
+
+.dark-theme .recommendation-reasons h5 {
+  color: var(--text-primary);
+}
+
+.dark-theme .reason {
+  color: var(--text-secondary);
+}
+
+/* Match Score */
+.dark-theme .match-score {
+  background-color: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Course Progress and Completion Items */
+.dark-theme .course-progress-item,
+.dark-theme .course-completion-item {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-color);
+}
+
+.dark-theme .step-content {
+  background-color: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.dark-theme .step-content h4 {
+  color: var(--text-primary);
+}
+
+.dark-theme .step-content p {
+  color: var(--text-secondary);
+}
+
+/* Insight Cards */
+.dark-theme .insight-card,
+.dark-theme .stat-item {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-color);
+}
+
+.dark-theme .insight-card h4 {
+  color: var(--text-secondary);
+}
+
+.dark-theme .insight-value {
+  color: var(--text-primary);
+}
+
+.dark-theme .insight-card p {
+  color: var(--text-muted);
+}
+
+/* No Data States */
+.dark-theme .no-data {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+/* Spinner */
+.dark-theme .spinner {
+  border-color: var(--border-color);
+  border-top-color: #667eea;
+}
+
+.dark-theme .loading-message {
+  color: var(--text-secondary);
+}
+
+/* Modal Overlay */
+.dark-theme .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Star Rating */
+.dark-theme .star {
+  color: var(--border-color);
+}
+
+.dark-theme .star.filled,
+.dark-theme .star:hover {
+  color: #f59e0b;
+}
+
+/* Search Icon */
+.dark-theme .search-icon {
+  color: var(--text-muted);
+}
+
+/* User Info */
+.dark-theme .user-name {
+  color: var(--text-primary);
+}
+
+/* Special Elements */
+.dark-theme .enrollment-section {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+.dark-theme .status-text {
+  color: var(--text-primary);
+}
+
+/* Header Theme Toggle */
+.dark-theme .theme-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbar Dark Theme */
+.dark-theme ::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.dark-theme ::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+
+.dark-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--border-light);
+}
+
+/* Wishlist and Favorites Button Styles */
+.wishlist-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.wishlist-button:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.wishlist-button.active {
+  background: rgba(255, 182, 193, 0.9);
+}
+
+.wishlist-button.active:hover {
+  background: rgba(255, 182, 193, 1);
+}
+
+.wishlist-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.wishlist-icon {
+  line-height: 1;
+}
+
+.favorites-button {
+  position: absolute;
+  top: 60px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.favorites-button:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.favorites-button.active {
+  background: rgba(255, 215, 0, 0.9);
+}
+
+.favorites-button.active:hover {
+  background: rgba(255, 215, 0, 1);
+}
+
+.favorites-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Dark theme styles for wishlist/favorites buttons */
+.dark-theme .wishlist-button,
+.dark-theme .favorites-button {
+  background: rgba(31, 41, 55, 0.9);
+  color: var(--text-primary);
+}
+
+.dark-theme .wishlist-button:hover,
+.dark-theme .favorites-button:hover {
+  background: rgba(31, 41, 55, 1);
+}
+
+.dark-theme .wishlist-button.active {
+  background: rgba(255, 182, 193, 0.9);
+  color: #1f2937;
+}
+
+.dark-theme .favorites-button.active {
+  background: rgba(255, 215, 0, 0.9);
+  color: #1f2937;
 }

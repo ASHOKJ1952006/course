@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5001/api';
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
@@ -109,6 +109,80 @@ export const getRecommendations = async () => {
 // Categories API
 export const getCategories = async () => {
   const response = await fetch(`${API_BASE_URL}/categories`, {
+    method: 'GET',
+    headers: getAuthHeaders()
+  });
+  return handleResponse(response);
+};
+
+// Wishlist APIs
+export const addToWishlist = async (courseId) => {
+  const response = await fetch(`${API_BASE_URL}/wishlist/${courseId}`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  return handleResponse(response);
+};
+
+export const removeFromWishlist = async (courseId) => {
+  const response = await fetch(`${API_BASE_URL}/wishlist/${courseId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
+  return handleResponse(response);
+};
+
+export const getWishlist = async () => {
+  const response = await fetch(`${API_BASE_URL}/wishlist`, {
+    method: 'GET',
+    headers: getAuthHeaders()
+  });
+  return handleResponse(response);
+};
+
+// Favorites APIs
+export const addToFavorites = async (courseId) => {
+  const response = await fetch(`${API_BASE_URL}/favorites/${courseId}`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  return handleResponse(response);
+};
+
+export const removeFromFavorites = async (courseId) => {
+  const response = await fetch(`${API_BASE_URL}/favorites/${courseId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
+  return handleResponse(response);
+};
+
+export const getFavorites = async () => {
+  const response = await fetch(`${API_BASE_URL}/favorites`, {
+    method: 'GET',
+    headers: getAuthHeaders()
+  });
+  return handleResponse(response);
+};
+
+// Certificate APIs
+export const downloadCertificate = async (certificateId) => {
+  const response = await fetch(`${API_BASE_URL}/certificate/${certificateId}`, {
+    method: 'GET',
+    headers: getAuthHeaders()
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  }
+
+  // Return blob for download
+  return response.blob();
+};
+
+export const getCertificates = async () => {
+  const response = await fetch(`${API_BASE_URL}/certificates`, {
     method: 'GET',
     headers: getAuthHeaders()
   });

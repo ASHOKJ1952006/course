@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Authentication Tokens</title>
+</head>
+<body>
+    <h1>Clear Authentication Tokens</h1>
+    <button onclick="clearTokens()">Clear Tokens</button>
+    <div id="status"></div>
+
+    <script>
+        function clearTokens() {
+            localStorage.removeItem('token');
+            document.getElementById('status').innerHTML = '<p style="color: green;">Tokens cleared successfully! You can now close this page and refresh your application.</p>';
+        }
+
+        // Auto-clear on page load
+        clearTokens();
+    </script>
+</body>
+</html>

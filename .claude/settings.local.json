@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node server.js)",
+      "WebSearch",
+      "WebFetch(domain:www.freepik.com)",
+      "WebFetch(domain:pixabay.com)",
+      "Bash(npm start)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(curl:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(mongosh:*)",
+      "Bash(PORT=5001 node server.js)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

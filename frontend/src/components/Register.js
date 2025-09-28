@@ -4,8 +4,10 @@ const Register = ({ onRegister, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
+    bio: '',
     interests: [],
     knownLanguages: []
   });
@@ -63,7 +65,9 @@ const Register = ({ onRegister, onSwitchToLogin }) => {
       const registerData = {
         username: formData.username,
         email: formData.email,
+        phone: formData.phone,
         password: formData.password,
+        bio: formData.bio,
         interests: formData.interests,
         knownLanguages: formData.knownLanguages
       };
@@ -108,6 +112,33 @@ const Register = ({ onRegister, onSwitchToLogin }) => {
                 onChange={handleInputChange}
                 placeholder="Enter your email"
                 required
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="phone">Phone Number (Optional)</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                placeholder="Enter your phone number"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="bio">Bio (Optional)</label>
+              <input
+                type="text"
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleInputChange}
+                placeholder="Tell us about yourself"
+                maxLength="100"
               />
             </div>
           </div>

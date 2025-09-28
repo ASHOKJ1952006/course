@@ -12,6 +12,9 @@ import Profile from './components/Profile';
 import Recommendations from './components/Recommendations';
 import LoadingSpinner from './components/LoadingSpinner';
 
+// Theme Provider
+import { ThemeProvider } from './contexts/ThemeContext';
+
 // API Service
 import * as api from './services/api';
 
@@ -102,13 +105,37 @@ function App() {
 
   const handleCourseComplete = async (courseId, rating) => {
     try {
-      await api.completeCourse(courseId, rating);
-      showNotification('Course completed successfully!', 'success');
+      const response = await api.completeCourse(courseId, rating);
+      showNotification('Course completed successfully! Certificate is now available.', 'success');
       // Refresh user data
       const userData = await api.getUserProfile();
       setUser(userData);
+
+      // Trigger certificate download after a short delay
+      if (response.certificateId) {
+        setTimeout(() => {
+          handleCertificateDownload(response.certificateId);
+        }, 2000);
+      }
     } catch (error) {
       showNotification(error.message || 'Failed to complete course', 'error');
+    }
+  };
+
+  const handleCertificateDownload = async (certificateId) => {
+    try {
+      const blob = await api.downloadCertificate(certificateId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `certificate-${certificateId}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      showNotification('Certificate downloaded successfully!', 'success');
+    } catch (error) {
+      showNotification('Failed to download certificate', 'error');
     }
   };
 
@@ -117,87 +144,91 @@ function App() {
   }
 
   return (
-    <div className="App">
-      {notification && (
-        <div className={`notification notification-${notification.type}`}>
-          {notification.message}
-          <button 
-            className="notification-close"
-            onClick={() => setNotification(null)}
-          >
-            ×
-          </button>
-        </div>
-      )}
-
-      {user && (
-        <Header 
-          user={user}
-          currentView={currentView}
-          onViewChange={handleViewChange}
-          onLogout={handleLogout}
-        />
-      )}
-
-      <main className="main-content">
-        {!user ? (
-          currentView === 'register' ? (
-            <Register 
-              onRegister={handleRegister}
-              onSwitchToLogin={() => setCurrentView('login')}
-            />
-          ) : (
-            <Login 
-              onLogin={handleLogin}
-              onSwitchToRegister={() => setCurrentView('register')}
-            />
-          )
-        ) : (
-          <>
-            {currentView === 'dashboard' && (
-              <Dashboard 
-                user={user}
-                onViewChange={handleViewChange}
-                onShowNotification={showNotification}
-              />
-            )}
-            
-            {currentView === 'courses' && (
-              <CourseList 
-                onCourseSelect={(course) => handleViewChange('courseDetail', course)}
-                onShowNotification={showNotification}
-              />
-            )}
-            
-            {currentView === 'courseDetail' && selectedCourse && (
-              <CourseDetail 
-                course={selectedCourse}
-                user={user}
-                onEnroll={handleCourseEnroll}
-                onComplete={handleCourseComplete}
-                onBack={() => handleViewChange('courses')}
-                onShowNotification={showNotification}
-              />
-            )}
-            
-            {currentView === 'recommendations' && (
-              <Recommendations 
-                onCourseSelect={(course) => handleViewChange('courseDetail', course)}
-                onShowNotification={showNotification}
-              />
-            )}
-            
-            {currentView === 'profile' && (
-              <Profile 
-                user={user}
-                onUpdateUser={setUser}
-                onShowNotification={showNotification}
-              />
-            )}
-          </>
+    <ThemeProvider>
+      <div className="App">
+        {notification && (
+          <div className={`notification notification-${notification.type}`}>
+            {notification.message}
+            <button
+              className="notification-close"
+              onClick={() => setNotification(null)}
+            >
+              ×
+            </button>
+          </div>
         )}
-      </main>
-    </div>
+
+        {user && (
+          <Header
+            user={user}
+            currentView={currentView}
+            onViewChange={handleViewChange}
+            onLogout={handleLogout}
+          />
+        )}
+
+        <main className="main-content">
+          {!user ? (
+            currentView === 'register' ? (
+              <Register
+                onRegister={handleRegister}
+                onSwitchToLogin={() => setCurrentView('login')}
+              />
+            ) : (
+              <Login
+                onLogin={handleLogin}
+                onSwitchToRegister={() => setCurrentView('register')}
+              />
+            )
+          ) : (
+            <>
+              {currentView === 'dashboard' && (
+                <Dashboard
+                  user={user}
+                  onViewChange={handleViewChange}
+                  onShowNotification={showNotification}
+                />
+              )}
+
+              {currentView === 'courses' && (
+                <CourseList
+                  user={user}
+                  onCourseSelect={(course) => handleViewChange('courseDetail', course)}
+                  onShowNotification={showNotification}
+                />
+              )}
+
+              {currentView === 'courseDetail' && selectedCourse && (
+                <CourseDetail
+                  course={selectedCourse}
+                  user={user}
+                  onEnroll={handleCourseEnroll}
+                  onComplete={handleCourseComplete}
+                  onDownloadCertificate={handleCertificateDownload}
+                  onBack={() => handleViewChange('courses')}
+                  onShowNotification={showNotification}
+                />
+              )}
+
+              {currentView === 'recommendations' && (
+                <Recommendations
+                  onCourseSelect={(course) => handleViewChange('courseDetail', course)}
+                  onShowNotification={showNotification}
+                />
+              )}
+
+              {currentView === 'profile' && (
+                <Profile
+                  user={user}
+                  onUpdateUser={setUser}
+                  onShowNotification={showNotification}
+                />
+              )}
+            </>
+          )}
+        </main>
+      </div>
+    </ThemeProvider>
   );
 }
 
