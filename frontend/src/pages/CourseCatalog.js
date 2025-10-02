@@ -1,0 +1,809 @@
+import React, { useState, useEffect, useRef } from 'react';
+import * as api from '../services/api';
+
+const CourseCatalog = ({ courses: initialCourses, categories, onNotification }) => {
+  const [courses, setCourses] = useState(initialCourses || []);
+  const [loading, setLoading] = useState(false);
+  const [viewMode, setViewMode] = useState('grid'); // grid, list, compact
+  const [sortBy, setSortBy] = useState('popularity');
+  const [filters, setFilters] = useState({
+    search: '',
+    category: 'all',
+    level: 'all',
+    price: 'all',
+    rating: 'all',
+    duration: 'all',
+    language: 'all',
+    instructor: 'all'
+  });
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [compareList, setCompareList] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [coursesPerPage] = useState(12);
+  const [priceRange, setPriceRange] = useState([0, 500]);
+  const [durationRange, setDurationRange] = useState([0, 100]);
+
+  const searchRef = useRef(null);
+  const filtersRef = useRef(null);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [filters, sortBy, currentPage]);
+
+  useEffect(() => {
+    // Load user's wishlist
+    loadWishlist();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        ...filters,
+        sortBy,
+        page: currentPage,
+        limit: coursesPerPage,
+        priceMin: priceRange[0],
+        priceMax: priceRange[1],
+        durationMin: durationRange[0],
+        durationMax: durationRange[1]
+      };
+
+      const response = await api.getCourses(params);
+      setCourses(response.courses || []);
+      setTotalPages(response.totalPages || 1);
+    } catch (error) {
+      console.error('Failed to fetch courses:', error);
+      onNotification('Failed to load courses', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadWishlist = async () => {
+    try {
+      const userWishlist = await api.getWishlist();
+      setWishlist(userWishlist.map(item => item.courseId));
+    } catch (error) {
+      // User might not be logged in
+      console.log('Could not load wishlist');
+    }
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (newSortBy) => {
+    setSortBy(newSortBy);
+    setCurrentPage(1);
+  };
+
+  const toggleWishlist = async (courseId) => {
+    try {
+      const isInWishlist = wishlist.includes(courseId);
+      
+      if (isInWishlist) {
+        await api.removeFromWishlist(courseId);
+        setWishlist(prev => prev.filter(id => id !== courseId));
+        onNotification('Removed from wishlist', 'info');
+      } else {
+        await api.addToWishlist(courseId);
+        setWishlist(prev => [...prev, courseId]);
+        onNotification('Added to wishlist', 'success');
+      }
+    } catch (error) {
+      onNotification('Please login to manage wishlist', 'warning');
+    }
+  };
+
+  const toggleCompare = (courseId) => {
+    if (compareList.includes(courseId)) {
+      setCompareList(prev => prev.filter(id => id !== courseId));
+    } else if (compareList.length < 3) {
+      setCompareList(prev => [...prev, courseId]);
+    } else {
+      onNotification('You can compare up to 3 courses', 'warning');
+    }
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      category: 'all',
+      level: 'all',
+      price: 'all',
+      rating: 'all',
+      duration: 'all',
+      language: 'all',
+      instructor: 'all'
+    });
+    setPriceRange([0, 500]);
+    setDurationRange([0, 100]);
+    setCurrentPage(1);
+  };
+
+  const enrollInCourse = async (courseId) => {
+    try {
+      await api.enrollInCourse(courseId);
+      onNotification('Successfully enrolled in course!', 'success');
+    } catch (error) {
+      onNotification('Enrollment failed. Please try again.', 'error');
+    }
+  };
+
+  const sortOptions = [
+    { value: 'popularity', label: 'Most Popular', icon: '🔥' },
+    { value: 'rating', label: 'Highest Rated', icon: '⭐' },
+    { value: 'newest', label: 'Newest First', icon: '🆕' },
+    { value: 'price-low', label: 'Price: Low to High', icon: '💰' },
+    { value: 'price-high', label: 'Price: High to Low', icon: '💎' },
+    { value: 'duration-short', label: 'Shortest Duration', icon: '⚡' },
+    { value: 'duration-long', label: 'Longest Duration', icon: '📚' },
+    { value: 'alphabetical', label: 'A-Z', icon: '🔤' }
+  ];
+
+  const viewModes = [
+    { value: 'grid', label: 'Grid View', icon: '⊞' },
+    { value: 'list', label: 'List View', icon: '☰' },
+    { value: 'compact', label: 'Compact View', icon: '▤' }
+  ];
+
+  const levelColors = {
+    'Beginner': '#10b981',
+    'Intermediate': '#f59e0b',
+    'Advanced': '#ef4444'
+  };
+
+  const renderCourseCard = (course, index) => {
+    const isInWishlist = wishlist.includes(course._id);
+    const isInCompare = compareList.includes(course._id);
+
+    if (viewMode === 'list') {
+      return (
+        <div key={course._id} className="course-card-list">
+          <div className="course-image-container">
+            <img 
+              src={course.thumbnail || '/api/placeholder/200/120'} 
+              alt={course.title}
+              className="course-image"
+            />
+            <div className="course-overlay">
+              <button 
+                className="preview-btn"
+                onClick={() => setSelectedCourse(course)}
+              >
+                👁️ Preview
+              </button>
+            </div>
+            <div className="course-badges">
+              <span className={`level-badge ${course.level?.toLowerCase()}`}>
+                {course.level}
+              </span>
+              {course.featured && <span className="featured-badge">⭐ Featured</span>}
+              {course.bestseller && <span className="bestseller-badge">🏆 Bestseller</span>}
+            </div>
+          </div>
+
+          <div className="course-content-list">
+            <div className="course-header">
+              <h3 className="course-title">{course.title}</h3>
+              <div className="course-actions-quick">
+                <button 
+                  className={`wishlist-btn ${isInWishlist ? 'active' : ''}`}
+                  onClick={() => toggleWishlist(course._id)}
+                  title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  {isInWishlist ? '❤️' : '🤍'}
+                </button>
+                <button 
+                  className={`compare-btn ${isInCompare ? 'active' : ''}`}
+                  onClick={() => toggleCompare(course._id)}
+                  title="Compare courses"
+                >
+                  ⚖️
+                </button>
+              </div>
+            </div>
+
+            <div className="course-meta-list">
+              <span className="instructor">👨‍🏫 {course.instructor}</span>
+              <span className="category">📂 {course.category}</span>
+              <span className="duration">🕒 {course.duration}h</span>
+              <span className="students">👥 {course.enrolledStudents?.toLocaleString()}</span>
+            </div>
+
+            <p className="course-description">{course.description}</p>
+
+            <div className="course-features">
+              <div className="feature-tags">
+                {course.tags?.slice(0, 3).map(tag => (
+                  <span key={tag} className="feature-tag">{tag}</span>
+                ))}
+              </div>
+              <div className="course-languages">
+                {course.languages?.slice(0, 2).map(lang => (
+                  <span key={lang} className="language-tag">{lang}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="course-footer-list">
+              <div className="rating-section">
+                <div className="stars">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className={`star ${i < Math.floor(course.rating) ? 'filled' : ''}`}>
+                      ⭐
+                    </span>
+                  ))}
+                </div>
+                <span className="rating-text">
+                  {course.rating?.toFixed(1)} ({course.totalRatings?.toLocaleString()})
+                </span>
+              </div>
+
+              <div className="price-section">
+                <span className="current-price">${course.price}</span>
+                {course.originalPrice && course.originalPrice > course.price && (
+                  <span className="original-price">${course.originalPrice}</span>
+                )}
+              </div>
+
+              <button 
+                className="enroll-btn primary"
+                onClick={() => enrollInCourse(course._id)}
+              >
+                Enroll Now
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (viewMode === 'compact') {
+      return (
+        <div key={course._id} className="course-card-compact">
+          <div className="compact-left">
+            <img 
+              src={course.thumbnail || '/api/placeholder/80/60'} 
+              alt={course.title}
+              className="compact-image"
+            />
+          </div>
+          <div className="compact-content">
+            <h4 className="compact-title">{course.title}</h4>
+            <div className="compact-meta">
+              <span className="instructor">{course.instructor}</span>
+              <span className="rating">⭐ {course.rating?.toFixed(1)}</span>
+              <span className="duration">{course.duration}h</span>
+            </div>
+          </div>
+          <div className="compact-right">
+            <div className="compact-price">${course.price}</div>
+            <button 
+              className="compact-enroll"
+              onClick={() => enrollInCourse(course._id)}
+            >
+              Enroll
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Default grid view
+    return (
+      <div key={course._id} className="course-card-grid">
+        <div className="card-inner">
+          <div className="course-image-container">
+            <img 
+              src={course.thumbnail || '/api/placeholder/300/200'} 
+              alt={course.title}
+              className="course-image"
+            />
+            
+            <div className="course-overlay">
+              <div className="overlay-actions">
+                <button 
+                  className="action-btn preview"
+                  onClick={() => setSelectedCourse(course)}
+                  title="Quick Preview"
+                >
+                  👁️
+                </button>
+                <button 
+                  className={`action-btn wishlist ${isInWishlist ? 'active' : ''}`}
+                  onClick={() => toggleWishlist(course._id)}
+                  title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  {isInWishlist ? '❤️' : '🤍'}
+                </button>
+                <button 
+                  className={`action-btn compare ${isInCompare ? 'active' : ''}`}
+                  onClick={() => toggleCompare(course._id)}
+                  title="Add to compare"
+                >
+                  ⚖️
+                </button>
+              </div>
+              
+              <div className="overlay-info">
+                <div className="quick-stats">
+                  <span>👥 {course.enrolledStudents?.toLocaleString()}</span>
+                  <span>🕒 {course.duration}h</span>
+                  <span>📚 {course.totalLessons || '12'} lessons</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="course-badges">
+              <span 
+                className="level-badge"
+                style={{ backgroundColor: levelColors[course.level] }}
+              >
+                {course.level}
+              </span>
+              {course.featured && <span className="featured-badge">⭐</span>}
+              {course.bestseller && <span className="bestseller-badge">🏆</span>}
+              {course.new && <span className="new-badge">🆕</span>}
+            </div>
+
+            <div className="progress-indicator">
+              <div 
+                className="progress-bar"
+                style={{ width: `${course.completionRate || 0}%` }}
+              ></div>
+            </div>
+          </div>
+
+          <div className="course-content">
+            <div className="course-header">
+              <div className="category-tag">{course.category}</div>
+              <div className="course-rating">
+                <span className="rating-stars">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className={`star ${i < Math.floor(course.rating) ? 'filled' : ''}`}>
+                      ⭐
+                    </span>
+                  ))}
+                </span>
+                <span className="rating-number">
+                  {course.rating?.toFixed(1)}
+                </span>
+              </div>
+            </div>
+
+            <h3 className="course-title">{course.title}</h3>
+            <p className="course-instructor">by {course.instructor}</p>
+            
+            <p className="course-description">
+              {course.description?.length > 100 
+                ? `${course.description.substring(0, 100)}...` 
+                : course.description}
+            </p>
+
+            <div className="course-features">
+              <div className="feature-list">
+                <div className="feature-item">
+                  <span className="feature-icon">🎯</span>
+                  <span>Hands-on projects</span>
+                </div>
+                <div className="feature-item">
+                  <span className="feature-icon">📜</span>
+                  <span>Certificate included</span>
+                </div>
+                <div className="feature-item">
+                  <span className="feature-icon">💬</span>
+                  <span>Community support</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="course-tags">
+              {course.tags?.slice(0, 3).map(tag => (
+                <span key={tag} className="tag">{tag}</span>
+              ))}
+            </div>
+
+            <div className="course-languages">
+              {course.languages?.map(lang => (
+                <span key={lang} className="language-badge">{lang}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="course-footer">
+            <div className="price-section">
+              <div className="current-price">${course.price}</div>
+              {course.originalPrice && course.originalPrice > course.price && (
+                <>
+                  <div className="original-price">${course.originalPrice}</div>
+                  <div className="discount-badge">
+                    {Math.round((1 - course.price / course.originalPrice) * 100)}% OFF
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="action-buttons">
+              <button 
+                className="btn-secondary preview-btn"
+                onClick={() => setSelectedCourse(course)}
+              >
+                Preview
+              </button>
+              <button 
+                className="btn-primary enroll-btn"
+                onClick={() => enrollInCourse(course._id)}
+              >
+                Enroll Now
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="course-catalog">
+      {/* Header Section */}
+      <div className="catalog-header">
+        <div className="header-content">
+          <h1 className="catalog-title">
+            <span className="title-icon">📚</span>
+            Course Catalog
+          </h1>
+          <p className="catalog-subtitle">
+            Discover your next learning adventure from our curated collection
+          </p>
+        </div>
+
+        <div className="header-stats">
+          <div className="stat-item">
+            <span className="stat-number">{courses.length}</span>
+            <span className="stat-label">Courses</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-number">{categories?.length || 8}</span>
+            <span className="stat-label">Categories</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-number">500+</span>
+            <span className="stat-label">Instructors</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Controls */}
+      <div className="catalog-controls">
+        <div className="search-section" ref={searchRef}>
+          <div className="search-container advanced">
+            <div className="search-input-wrapper">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="Search courses, instructors, skills..."
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                className="search-input"
+              />
+              <button className="voice-search-btn" title="Voice Search">
+                🎤
+              </button>
+              <button className="ai-search-btn" title="AI-Powered Search">
+                ✨
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="control-bar">
+          <div className="left-controls">
+            <button 
+              className={`filter-toggle ${showFilters ? 'active' : ''}`}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <span className="filter-icon">🔧</span>
+              Filters
+              <span className="filter-count">
+                {Object.values(filters).filter(v => v !== 'all' && v !== '').length}
+              </span>
+            </button>
+
+            <div className="sort-dropdown">
+              <select 
+                value={sortBy} 
+                onChange={(e) => handleSortChange(e.target.value)}
+                className="sort-select"
+              >
+                {sortOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.icon} {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="right-controls">
+            <div className="view-modes">
+              {viewModes.map(mode => (
+                <button
+                  key={mode.value}
+                  className={`view-mode-btn ${viewMode === mode.value ? 'active' : ''}`}
+                  onClick={() => setViewMode(mode.value)}
+                  title={mode.label}
+                >
+                  {mode.icon}
+                </button>
+              ))}
+            </div>
+
+            <div className="results-info">
+              Showing {courses.length} of {courses.length} courses
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Advanced Filters Panel */}
+      {showFilters && (
+        <div className="filters-panel" ref={filtersRef}>
+          <div className="filters-header">
+            <h3>Advanced Filters</h3>
+            <button className="clear-filters" onClick={clearFilters}>
+              Clear All
+            </button>
+          </div>
+
+          <div className="filters-grid">
+            <div className="filter-group">
+              <label>Category</label>
+              <select 
+                value={filters.category} 
+                onChange={(e) => handleFilterChange('category', e.target.value)}
+              >
+                <option value="all">All Categories</option>
+                {categories?.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label>Level</label>
+              <select 
+                value={filters.level} 
+                onChange={(e) => handleFilterChange('level', e.target.value)}
+              >
+                <option value="all">All Levels</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label>Rating</label>
+              <select 
+                value={filters.rating} 
+                onChange={(e) => handleFilterChange('rating', e.target.value)}
+              >
+                <option value="all">All Ratings</option>
+                <option value="4.5">4.5+ Stars</option>
+                <option value="4.0">4.0+ Stars</option>
+                <option value="3.5">3.5+ Stars</option>
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label>Price Range</label>
+              <div className="range-slider">
+                <input
+                  type="range"
+                  min="0"
+                  max="500"
+                  value={priceRange[1]}
+                  onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
+                />
+                <div className="range-labels">
+                  <span>$0</span>
+                  <span>${priceRange[1]}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="filter-group">
+              <label>Duration (hours)</label>
+              <div className="range-slider">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={durationRange[1]}
+                  onChange={(e) => setDurationRange([0, parseInt(e.target.value)])}
+                />
+                <div className="range-labels">
+                  <span>0h</span>
+                  <span>{durationRange[1]}h</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="filter-group">
+              <label>Language</label>
+              <select 
+                value={filters.language} 
+                onChange={(e) => handleFilterChange('language', e.target.value)}
+              >
+                <option value="all">All Languages</option>
+                <option value="English">English</option>
+                <option value="Spanish">Spanish</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Compare Bar */}
+      {compareList.length > 0 && (
+        <div className="compare-bar">
+          <div className="compare-content">
+            <span className="compare-title">Compare Courses ({compareList.length}/3)</span>
+            <div className="compare-items">
+              {compareList.map(courseId => {
+                const course = courses.find(c => c._id === courseId);
+                return course ? (
+                  <div key={courseId} className="compare-item">
+                    <span>{course.title}</span>
+                    <button onClick={() => toggleCompare(courseId)}>×</button>
+                  </div>
+                ) : null;
+              })}
+            </div>
+            <button className="compare-btn-action">Compare Now</button>
+          </div>
+        </div>
+      )}
+
+      {/* Course Grid/List */}
+      <div className="catalog-content">
+        {loading ? (
+          <div className="loading-grid">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="course-skeleton">
+                <div className="skeleton-image"></div>
+                <div className="skeleton-content">
+                  <div className="skeleton-line"></div>
+                  <div className="skeleton-line short"></div>
+                  <div className="skeleton-line"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : courses.length === 0 ? (
+          <div className="no-results">
+            <div className="no-results-icon">🔍</div>
+            <h3>No courses found</h3>
+            <p>Try adjusting your filters or search terms</p>
+            <button className="clear-filters-btn" onClick={clearFilters}>
+              Clear All Filters
+            </button>
+          </div>
+        ) : (
+          <div className={`courses-container ${viewMode}`}>
+            {courses.map((course, index) => renderCourseCard(course, index))}
+          </div>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button 
+            className="page-btn"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
+            ← Previous
+          </button>
+          
+          <div className="page-numbers">
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i + 1}
+                className={`page-number ${currentPage === i + 1 ? 'active' : ''}`}
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          
+          <button 
+            className="page-btn"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            Next →
+          </button>
+        </div>
+      )}
+
+      {/* Course Preview Modal */}
+      {selectedCourse && (
+        <div className="course-modal-overlay" onClick={() => setSelectedCourse(null)}>
+          <div className="course-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{selectedCourse.title}</h2>
+              <button 
+                className="close-modal"
+                onClick={() => setSelectedCourse(null)}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="modal-content">
+              <div className="modal-left">
+                <img 
+                  src={selectedCourse.thumbnail || '/api/placeholder/400/250'} 
+                  alt={selectedCourse.title}
+                />
+                <div className="modal-actions">
+                  <button 
+                    className="btn-primary"
+                    onClick={() => enrollInCourse(selectedCourse._id)}
+                  >
+                    Enroll Now - ${selectedCourse.price}
+                  </button>
+                  <button 
+                    className={`btn-secondary ${wishlist.includes(selectedCourse._id) ? 'active' : ''}`}
+                    onClick={() => toggleWishlist(selectedCourse._id)}
+                  >
+                    {wishlist.includes(selectedCourse._id) ? '❤️ In Wishlist' : '🤍 Add to Wishlist'}
+                  </button>
+                </div>
+              </div>
+              
+              <div className="modal-right">
+                <div className="course-details">
+                  <p><strong>Instructor:</strong> {selectedCourse.instructor}</p>
+                  <p><strong>Category:</strong> {selectedCourse.category}</p>
+                  <p><strong>Level:</strong> {selectedCourse.level}</p>
+                  <p><strong>Duration:</strong> {selectedCourse.duration} hours</p>
+                  <p><strong>Rating:</strong> ⭐ {selectedCourse.rating?.toFixed(1)} ({selectedCourse.totalRatings} reviews)</p>
+                </div>
+                
+                <div className="course-description">
+                  <h4>About this course</h4>
+                  <p>{selectedCourse.description}</p>
+                </div>
+                
+                <div className="course-curriculum">
+                  <h4>What you'll learn</h4>
+                  <ul>
+                    <li>Master the fundamentals and advanced concepts</li>
+                    <li>Build real-world projects and portfolio</li>
+                    <li>Get hands-on experience with industry tools</li>
+                    <li>Earn a certificate of completion</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CourseCatalog;

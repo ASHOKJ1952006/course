@@ -12,11 +12,40 @@ const Recommendations = ({ onCourseSelect, onShowNotification }) => {
   const fetchRecommendations = async () => {
     try {
       setLoading(true);
-      const response = await api.getRecommendations();
-      setRecommendations(response.recommendations);
-    } catch (error) {
-      console.error('Failed to fetch recommendations:', error);
-      onShowNotification('Failed to load recommendations', 'error');
+      console.log('Fetching recommendations...');
+      
+      // First try to get personalized recommendations
+      try {
+        const response = await api.getRecommendations();
+        console.log('Recommendations response:', response);
+        
+        if (response.courses && response.courses.length > 0) {
+          setRecommendations(response.courses);
+          onShowNotification(`Found ${response.courses.length} personalized recommendations!`, 'success');
+          return;
+        }
+      } catch (authError) {
+        console.log('Auth recommendations failed, trying fallback...');
+      }
+      
+      // Fallback: get popular courses
+      try {
+        const fallbackResponse = await api.getCourses();
+        console.log('Fallback courses response:', fallbackResponse);
+        
+        if (fallbackResponse.courses && fallbackResponse.courses.length > 0) {
+          setRecommendations(fallbackResponse.courses.slice(0, 8));
+          onShowNotification('Showing popular courses for you', 'info');
+        } else {
+          // Last resort: show empty state with helpful message
+          setRecommendations([]);
+          onShowNotification('No courses available. Please add sample data first.', 'warning');
+        }
+      } catch (fallbackError) {
+        console.error('All methods failed:', fallbackError);
+        setRecommendations([]);
+        onShowNotification('Unable to load courses. Please check if the backend is running.', 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -43,23 +72,38 @@ const Recommendations = ({ onCourseSelect, onShowNotification }) => {
       {recommendations.length === 0 ? (
         <div className="no-recommendations">
           <div className="no-recommendations-icon">🎯</div>
-          <h3>No recommendations available</h3>
+          <h3>No courses available</h3>
           <p>
-            We need more information about your interests and learning preferences 
-            to provide personalized recommendations.
+            It looks like there are no courses in the database yet. 
+            Let's add some sample courses to get you started!
           </p>
           <div className="recommendations-actions">
             <button 
               className="action-button primary"
-              onClick={() => window.location.reload()}
+              onClick={async () => {
+                try {
+                  onShowNotification('Adding sample courses...', 'info');
+                  await api.addSampleData();
+                  onShowNotification('Sample courses added! Refreshing...', 'success');
+                  setTimeout(() => fetchRecommendations(), 1000);
+                } catch (error) {
+                  onShowNotification('Failed to add sample data. Check if backend is running.', 'error');
+                }
+              }}
             >
-              Update Profile
+              🚀 Add Sample Courses
             </button>
             <button 
               className="action-button secondary"
-              onClick={() => onShowNotification('Browse our course catalog to discover new topics!', 'info')}
+              onClick={() => fetchRecommendations()}
             >
-              Browse All Courses
+              🔄 Refresh
+            </button>
+            <button 
+              className="action-button secondary"
+              onClick={() => window.location.href = '/profile'}
+            >
+              📝 Update Profile
             </button>
           </div>
         </div>

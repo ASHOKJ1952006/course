@@ -4,8 +4,9 @@
   "description": "Backend API for course recommendation system",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node server_simple.js",
+    "start-original": "node server.js",
+    "dev": "nodemon server_simple.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

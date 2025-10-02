@@ -36,6 +36,10 @@ const authenticateToken = (req, res, next) => {
 mongoose.connect('mongodb://localhost:27017/course_recommendation', {
   useNewUrlParser: true,
   useUnifiedTopology: true
+}).then(() => {
+  console.log('Connected to MongoDB successfully');
+}).catch((error) => {
+  console.error('MongoDB connection error:', error);
 });
 
 // Define all schemas first
@@ -1431,7 +1435,7 @@ app.get('/api/certificates', authenticateToken, async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as api from '../services/api';
-import CoursePlayer from './CoursePlayer';
 import '../styles/course-catalog.css';
 
 const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
@@ -25,9 +24,6 @@ const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [coursesPerPage] = useState(12);
   const [priceRange, setPriceRange] = useState([0, 500]);
-  const [activeCourse, setActiveCourse] = useState(null);
-  const [enrolledCourses, setEnrolledCourses] = useState([]);
-  const [completedCourses, setCompletedCourses] = useState([]);
 
   const searchRef = useRef(null);
 
@@ -38,151 +34,7 @@ const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
     } catch (error) {
       console.error('Failed to fetch categories:', error);
       setCategories(['Programming', 'Web Development', 'Data Science', 'Machine Learning']);
-      ERROR in ./src/components/NextGenApp.js
-      Module build failed (from ./node_modules/babel-loader/lib/index.js):
-      SyntaxError: D:\ABI\ashok_one_credit\course\frontend\src\components\NextGenApp.js: 'return' outside of function. (209:4)
-      
-        207 |   // Show login screen if not authenticated
-        208 |   if (!isAuthenticated) {
-      > 209 |     return <QuickLogin />;
-            |     ^
-        210 |   }
-        211 |
-        212 |   return (
-          at constructor (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:367:19)
-          at FlowParserMixin.raise (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:6630:19)
-          at FlowParserMixin.parseReturnStatement (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13145:12)
-          at FlowParserMixin.parseStatementContent (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12807:21)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
-          at FlowParserMixin.parseStatementListItem (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12756:17)
-          at FlowParserMixin.parseBlockOrModuleBlockBody (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13325:61)
-          at FlowParserMixin.parseBlockBody (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
-          at FlowParserMixin.parseBlock (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13306:10)
-          at FlowParserMixin.parseStatementContent (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12867:21)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
-          at FlowParserMixin.parseStatementOrSloppyAnnexBFunctionDeclaration (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12766:17)     
-          at FlowParserMixin.parseIfStatement (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13139:28)
-          at FlowParserMixin.parseStatementContent (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12805:21)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
-          at FlowParserMixin.parseModuleItem (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12753:17)
-          at FlowParserMixin.parseBlockOrModuleBlockBody (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13325:36)
-          at FlowParserMixin.parseBlockBody (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
-          at FlowParserMixin.parseProgram (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12634:10)
-          at FlowParserMixin.parseTopLevel (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12624:25)
-          at FlowParserMixin.parseTopLevel (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:3718:28)
-          at FlowParserMixin.parse (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:14501:10)
-          at parse (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:14535:38)
-          at parser (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
-          at parser.next (<anonymous>)
-          at normalizeFile (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
-          at normalizeFile.next (<anonymous>)
-          at run (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
-          at run.next (<anonymous>)
-          at transform (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\core\
-      Failed to compile.
-      
-      SyntaxError: D:\ABI\ashok_one_credit\course\frontend\src\components\NextGenApp.js: 'return' outside of function. (209:4)
-        207 |   // Show login screen if not authenticated
-        208 |   if (!isAuthenticated) {
-      > 209 |     return <QuickLogin />;
-            |     ^
-        210 |   }
-        211 |
-        212 |   return (
-          at parser.next (<anonymous>)
-          at normalizeFile.next (<anonymous>)
-          at run.next (<anonymous>)
-          at transform.next (<anonymous>)
-      WARNING in [eslint] 
-      src\App.js
-        Line 2:27:  'Router' is defined but never used      no-unused-vars
-        Line 2:35:  'Routes' is defined but never used      no-unused-vars
-        Line 2:43:  'Route' is defined but never used       no-unused-vars
-        Line 5:8:   'NextGenApp' is defined but never used  no-unused-vars
-      
-      src\components\CareerPage.js
-        Line 11:10:  'applications' is assigned a value but never used      no-unused-vars
-        Line 11:24:  'setApplications' is assigned a value but never used   no-unused-vars
-        Line 15:11:  'completedCourses' is assigned a value but never used  no-unused-vars
-      
-      src\components\CommunityPage.js
-        Line 11:10:  'discussions' is assigned a value but never used       no-unused-vars
-        Line 11:23:  'setDiscussions' is assigned a value but never used    no-unused-vars
-        Line 13:10:  'selectedGroup' is assigned a value but never used     no-unused-vars
-        Line 13:25:  'setSelectedGroup' is assigned a value but never used  no-unused-vars
-      
-      src\components\NotificationSystem.js
-        Line 1:27:  'useEffect' is defined but never used  no-unused-vars
-      
-      src\components\ProfessionalNextGenApp.js
-        Line 191:9:  'handleError' is assigned a value but never used  no-unused-vars    
-      
-      src\components\SearchSystem.js
-        Line 52:6:  React Hook useEffect has a missing dependency: 'allSuggestions'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
-      
-      ERROR in ./src/components/NextGenApp.js
-      Module build failed (from ./node_modules/babel-loader/lib/index.js):
-      SyntaxError: D:\ABI\ashok_one_credit\course\frontend\src\components\NextGenApp.js: 'return' outside of function. (209:4)
-      
-        207 |   // Show login screen if not authenticated
-        208 |   if (!isAuthenticated) {
-      > 209 |     return <QuickLogin />;
-            |     ^
-        210 |   }
-        211 |
-        212 |   return (
-          at constructor (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:367:19)
-          at FlowParserMixin.raise (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:6630:19)
-          at FlowParserMixin.parseReturnStatement (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13145:12)
-          at FlowParserMixin.parseStatementContent (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12807:21)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
-          at FlowParserMixin.parseStatementListItem (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12756:17)
-          at FlowParserMixin.parseBlockOrModuleBlockBody (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13325:61)
-          at FlowParserMixin.parseBlockBody (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
-          at FlowParserMixin.parseBlock (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13306:10)
-          at FlowParserMixin.parseStatementContent (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12867:21)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
-          at FlowParserMixin.parseStatementOrSloppyAnnexBFunctionDeclaration (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12766:17)     
-          at FlowParserMixin.parseIfStatement (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13139:28)
-          at FlowParserMixin.parseStatementContent (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12805:21)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12776:17)
-          at FlowParserMixin.parseStatementLike (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:2949:24)
-          at FlowParserMixin.parseModuleItem (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12753:17)
-          at FlowParserMixin.parseBlockOrModuleBlockBody (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13325:36)
-          at FlowParserMixin.parseBlockBody (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:13318:10)
-          at FlowParserMixin.parseProgram (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12634:10)
-          at FlowParserMixin.parseTopLevel (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:12624:25)
-          at FlowParserMixin.parseTopLevel (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:3718:28)
-          at FlowParserMixin.parse (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:14501:10)
-          at parse (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\parser\lib\index.js:14535:38)
-          at parser (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
-          at parser.next (<anonymous>)
-          at normalizeFile (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
-          at normalizeFile.next (<anonymous>)
-          at run (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
-          at run.next (<anonymous>)
-          at transform (D:\ABI\ashok_one_credit\course\frontend\node_modules\@babel\core\lib\transform.js:22:33)
-          at transform.next (<anonymous>)
-          at step (D:\ABI\ashok_one_credit\course\frontend\node_modules\gensync\index.js:261:32)
-          at D:\ABI\ashok_one_credit\course\frontend\node_modules\gensync\index.js:273:13
-          at async.call.result.err.err (D:\ABI\ashok_one_credit\course\frontend\node_modules\gensync\index.js:223:11)
-      
-      ERROR in [eslint]
-      src\components\NextGenApp.js
-        Line 209:4:  Parsing error: 'return' outside of function. (209:4)
-      
-      src\components\NotificationSystem.js
-        Line 278:16:  'NotificationSystem' is not defined  no-undef
-      
-      Search for the keywords to learn more about each error.
-      
-      webpack compiled with 2 errors and 1 warning
-          }
+    }
   };
 
   const fetchCourses = async () => {
@@ -200,7 +52,7 @@ const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
       setTotalPages(response.totalPages || 1);
     } catch (error) {
       console.error('Failed to fetch courses:', error);
-      onShowNotification && onShowNotification('Failed to load courses', 'error');
+      onShowNotification('Failed to load courses', 'error');
       // Fallback with sample data
       setCourses([
         {
@@ -293,14 +145,14 @@ const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
       if (isInWishlist) {
         await api.removeFromWishlist(courseId);
         setWishlist(prev => prev.filter(id => id !== courseId));
-        onShowNotification && onShowNotification('Removed from wishlist', 'info');
+        onShowNotification('Removed from wishlist', 'info');
       } else {
         await api.addToWishlist(courseId);
         setWishlist(prev => [...prev, courseId]);
-        onShowNotification && onShowNotification('Added to wishlist', 'success');
+        onShowNotification('Added to wishlist', 'success');
       }
     } catch (error) {
-      onShowNotification && onShowNotification('Please login to manage wishlist', 'warning');
+      onShowNotification('Please login to manage wishlist', 'warning');
     }
   };
 
@@ -310,7 +162,7 @@ const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
     } else if (compareList.length < 3) {
       setCompareList(prev => [...prev, courseId]);
     } else {
-      onShowNotification && onShowNotification('You can compare up to 3 courses', 'warning');
+      onShowNotification('You can compare up to 3 courses', 'warning');
     }
   };
 
@@ -330,32 +182,25 @@ const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
   const enrollInCourse = async (courseId) => {
     try {
       await api.enrollInCourse(courseId);
-      setEnrolledCourses(prev => [...prev, courseId]);
-      onShowNotification && onShowNotification('Successfully enrolled in course!', 'success');
+      onShowNotification('Successfully enrolled in course!', 'success');
     } catch (error) {
-      onShowNotification && onShowNotification('Enrollment failed. Please try again.', 'error');
+      onShowNotification('Enrollment failed. Please try again.', 'error');
     }
   };
 
-  const startCourse = (course) => {
-    if (enrolledCourses.includes(course._id)) {
-      setActiveCourse(course);
-      onShowNotification && onShowNotification(`Starting ${course.title}...`, 'info');
-    } else {
-      onShowNotification && onShowNotification('Please enroll in the course first!', 'warning');
-    }
-  };
+  const sortOptions = [
+    { value: 'popularity', label: 'Most Popular', icon: '🔥' },
+    { value: 'rating', label: 'Highest Rated', icon: '⭐' },
+    { value: 'newest', label: 'Newest First', icon: '🆕' },
+    { value: 'price-low', label: 'Price: Low to High', icon: '💰' },
+    { value: 'price-high', label: 'Price: High to Low', icon: '💎' }
+  ];
 
-  const handleCourseComplete = (course, certificate) => {
-    setCompletedCourses(prev => [...prev, course._id]);
-    setActiveCourse(null);
-    onShowNotification && onShowNotification(`🎉 Congratulations! You've completed ${course.title}!`, 'success');
-    
-    // Store certificate in user data (simulate)
-    const userCertificates = JSON.parse(localStorage.getItem('userCertificates') || '[]');
-    userCertificates.push(certificate);
-    localStorage.setItem('userCertificates', JSON.stringify(userCertificates));
-  };
+  const viewModes = [
+    { value: 'grid', label: 'Grid View', icon: '⊞' },
+    { value: 'list', label: 'List View', icon: '☰' },
+    { value: 'compact', label: 'Compact View', icon: '▤' }
+  ];
 
   const renderCourseCard = (course) => {
     const isInWishlist = wishlist.includes(course._id);
@@ -475,28 +320,12 @@ const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
               >
                 Preview
               </button>
-              {!enrolledCourses.includes(course._id) ? (
-                <button 
-                  className="btn-primary enroll-btn"
-                  onClick={() => enrollInCourse(course._id)}
-                >
-                  Enroll Now
-                </button>
-              ) : completedCourses.includes(course._id) ? (
-                <button 
-                  className="btn-success completed-btn"
-                  disabled
-                >
-                  ✅ Completed
-                </button>
-              ) : (
-                <button 
-                  className="btn-primary start-btn"
-                  onClick={() => startCourse(course)}
-                >
-                  🚀 Start Course
-                </button>
-              )}
+              <button 
+                className="btn-primary enroll-btn"
+                onClick={() => enrollInCourse(course._id)}
+              >
+                Enroll Now
+              </button>
             </div>
           </div>
         </div>
@@ -569,9 +398,36 @@ const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
                 {Object.values(filters).filter(v => v !== 'all' && v !== '').length}
               </span>
             </button>
+
+            <div className="sort-dropdown">
+              <select 
+                value={sortBy} 
+                onChange={(e) => handleSortChange(e.target.value)}
+                className="sort-select"
+              >
+                {sortOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.icon} {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="right-controls">
+            <div className="view-modes">
+              {viewModes.map(mode => (
+                <button
+                  key={mode.value}
+                  className={`view-mode-btn ${viewMode === mode.value ? 'active' : ''}`}
+                  onClick={() => setViewMode(mode.value)}
+                  title={mode.label}
+                >
+                  {mode.icon}
+                </button>
+              ))}
+            </div>
+
             <div className="results-info">
               Showing {courses.length} courses
             </div>
@@ -695,7 +551,7 @@ const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
             </button>
           </div>
         ) : (
-          <div className="courses-container grid">
+          <div className={`courses-container ${viewMode}`}>
             {courses.map(course => renderCourseCard(course))}
           </div>
         )}
@@ -764,16 +620,6 @@ const CourseList = ({ user, onCourseSelect, onShowNotification }) => {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Course Player Modal */}
-      {activeCourse && (
-        <CoursePlayer
-          course={activeCourse}
-          onClose={() => setActiveCourse(null)}
-          onShowNotification={onShowNotification}
-          onCourseComplete={handleCourseComplete}
-        />
       )}
     </div>
   );
